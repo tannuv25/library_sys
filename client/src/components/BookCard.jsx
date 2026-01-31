@@ -95,7 +95,7 @@ export default function BookCard({ book }) {
           <button
             onClick={handleBorrowClick}
             disabled={!isAvailable || loading}
-            className={`w-full mt-4 py-2 rounded-md text-sm font-medium transition ${
+            className={`w-full mt-4 py-2 rounded-md text-sm font-medium transition pointer-cursor ${
               isAvailable
                 ? "bg-indigo-600 text-white hover:bg-indigo-700"
                 : "bg-gray-200 text-gray-500 cursor-not-allowed"

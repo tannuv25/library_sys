@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import BookDetails from "./pages/BookDetails";
 import BorrowPage from "./pages/BorrowPage";
 import Transactions from "./pages/Transaction";
+import BorrowHistory from "./pages/BorrowHistory";
 
 
 export default function App() {
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/books/:id" element={<BookDetails />} />
 
         <Route path="/borrow" element={<BorrowPage />} />
+        <Route path="/borrow-history" element={<BorrowHistory />} />
         <Route path="/transactions" element={<Transactions />} />
 
         <Route path="/login" element={<Login />} />

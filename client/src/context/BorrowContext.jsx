@@ -14,7 +14,7 @@ export function BorrowProvider({ children }) {
     try {
       const res = await api.get("/api/borrow/active");
       setActiveBorrow(res.data);
-    } catch (err) {
+    } catch {
       setActiveBorrow(null);
     }
   };
@@ -24,7 +24,7 @@ export function BorrowProvider({ children }) {
     try {
       const res = await api.get("/api/borrow/history");
       setHistory(res.data);
-    } catch (err) {
+    } catch {
       setHistory([]);
     }
   };
@@ -33,9 +33,9 @@ export function BorrowProvider({ children }) {
   const borrowBook = async (bookId, days) => {
     try {
       setLoading(true);
-      await api.post("/api/borrow", { bookId, days });
+      await api.post("/api/borrow/borrow", { bookId, days });
       toast.success("Book borrowed successfully");
-      fetchActiveBorrow();
+      await fetchActiveBorrow();
     } catch (err) {
       toast.error(err.response?.data?.message || "Borrow failed");
       throw err;
@@ -50,8 +50,8 @@ export function BorrowProvider({ children }) {
       setLoading(true);
       await api.post("/api/borrow/return", { borrowId });
       toast.success("Book returned successfully");
-      fetchActiveBorrow();
-      fetchBorrowHistory();
+      await fetchActiveBorrow();
+      await fetchBorrowHistory();
     } catch (err) {
       toast.error(err.response?.data?.message || "Return failed");
     } finally {

@@ -14,15 +14,21 @@ export default function BorrowPage() {
           My Borrowed Book
         </h1>
 
-        {!activeBorrow && (
+        {loading && (
+          <div className="text-center text-gray-500">
+            Loading borrow details...
+          </div>
+        )}
+
+        {!loading && !activeBorrow && (
           <div className="bg-white border rounded-xl p-6 text-gray-500">
             You have no active borrowed books.
           </div>
         )}
 
-        {activeBorrow && (
+        {!loading && activeBorrow && activeBorrow.bookId && (
           <div className="bg-white border rounded-xl shadow-sm p-6 grid md:grid-cols-2 gap-6">
-            
+
             {/* Book Info */}
             <div>
               <h2 className="text-xl font-semibold">
@@ -51,7 +57,7 @@ export default function BorrowPage() {
               <button
                 disabled={loading}
                 onClick={() => returnBook(activeBorrow._id)}
-                className="w-full py-3 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                className="w-full py-3 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition disabled:opacity-60"
               >
                 Return Book
               </button>
