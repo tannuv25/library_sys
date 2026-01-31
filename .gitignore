@@ -1,0 +1,68 @@
+############################
+# ROOT
+############################
+node_modules/
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+############################
+# CLIENT (React / Vite)
+############################
+client/node_modules/
+client/dist/
+client/build/
+client/.env
+client/.env.*
+client/.vite/
+client/.cache/
+
+# Logs
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+
+############################
+# SERVER (Node / Express)
+############################
+server/node_modules/
+server/.env
+server/.env.*
+server/logs/
+server/npm-debug.log*
+server/yarn-debug.log*
+server/yarn-error.log*
+
+############################
+# DATABASE / UPLOADS
+############################
+# Ignore user uploaded files
+server/uploads/
+uploads/
+
+# (OPTIONAL) keep empty folder
+!server/uploads/.gitkeep
+
+############################
+# OS / EDITOR
+############################
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+
+############################
+# TEST / COVERAGE
+############################
+coverage/
+.nyc_output/
+
+############################
+# TEMP FILES
+############################
+*.log
+*.tmp
+*.swp
