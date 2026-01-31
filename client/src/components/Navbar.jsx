@@ -38,11 +38,17 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
             <Link to="/" className="hover:text-indigo-600">Home</Link>
             <Link to="/books" className="hover:text-indigo-600">Books</Link>
+           
+
 
             {user && (
+              <>
               <Link to="/dashboard" className="hover:text-indigo-600">
                 Dashboard
               </Link>
+               <Link to="/borrow" className="hover:text-indigo-600">Borrow</Link>
+            <Link to="/borrow-history" className="hover:text-indigo-600">History</Link>
+            </>
             )}
 
             <span className="h-5 w-px bg-gray-300"></span>
