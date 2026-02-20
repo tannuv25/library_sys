@@ -12,16 +12,40 @@ export const borrowBook = async (req, res) => {
       return res.status(400).json({ message: "Invalid input" });
     }
 
-    const user = await User.findById(userId);
-    if (user.hasActiveBorrow) {
+    // 🔹 Check max 2 active borrows
+    const activeCount = await Borrow.countDocuments({
+      user: userId,
+      status: "ACTIVE"
+    });
+
+    if (activeCount >= 2) {
       return res.status(400).json({
-        message: "You already have an active borrowed book"
+        message: "You can only borrow maximum 2 books at a time"
+      });
+    }
+
+    // 🔹 Prevent same book twice
+    const alreadyBorrowed = await Borrow.findOne({
+      user: userId,
+      book: bookId,
+      status: "ACTIVE"
+    });
+
+    if (alreadyBorrowed) {
+      return res.status(400).json({
+        message: "You have already borrowed this book"
       });
     }
 
     const book = await Book.findById(bookId);
-    if (!book || !book.isAvailable) {
-      return res.status(400).json({ message: "Book not available" });
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    if (book.availableCopies <= 0) {
+      return res.status(400).json({
+        message: "No copies available"
+      });
     }
 
     const borrowDate = new Date();
@@ -31,49 +55,50 @@ export const borrowBook = async (req, res) => {
     const totalCost = days * book.pricePerDay;
 
     const borrow = await Borrow.create({
-      userId,
-      bookId,
+      user: userId,
+      book: bookId,
       borrowDate,
       dueDate,
       totalCost
     });
 
-    // update user & book
-    user.hasActiveBorrow = true;
-    await user.save();
-
-    book.isAvailable = false;
+    // 🔹 Decrease inventory
+    book.availableCopies -= 1;
     await book.save();
 
     res.status(201).json({
       message: "Book borrowed successfully",
       borrow
     });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-/* ---------------- RETURN BOOK ---------------- */
 export const returnBook = async (req, res) => {
   try {
-    const { borrowId, returnDate } = req.body;
+    const { borrowId } = req.body;
 
-    const borrow = await Borrow.findById(borrowId);
+    const borrow = await Borrow.findById(borrowId).populate("book");
+
     if (!borrow || borrow.status === "RETURNED") {
-      return res.status(400).json({ message: "Invalid borrow record" });
+      return res.status(400).json({
+        message: "Invalid borrow record"
+      });
     }
 
-    const actualReturnDate = returnDate
-      ? new Date(returnDate)
-      : new Date();
+    const actualReturnDate = new Date();
 
     let overdueAmount = 0;
 
     if (actualReturnDate > borrow.dueDate) {
       const diffTime = actualReturnDate - borrow.dueDate;
-      const overdueDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      overdueAmount = overdueDays * 10; // fixed overdue charge
+      const overdueDays = Math.ceil(
+        diffTime / (1000 * 60 * 60 * 24)
+      );
+
+      overdueAmount = overdueDays * 10; // ₹10 per day fine
     }
 
     borrow.returnDate = actualReturnDate;
@@ -81,45 +106,47 @@ export const returnBook = async (req, res) => {
     borrow.status = "RETURNED";
     await borrow.save();
 
-    // update user & book
-    await User.findByIdAndUpdate(borrow.userId, {
-      hasActiveBorrow: false
-    });
+    // 🔹 Increase inventory
+    borrow.book.availableCopies += 1;
+    await borrow.book.save();
 
-    await Book.findByIdAndUpdate(borrow.bookId, {
-      isAvailable: true
-    });
+    // 🔹 Add fine to user balance
+    if (overdueAmount > 0) {
+      await User.findByIdAndUpdate(borrow.user, {
+        $inc: { balance: overdueAmount }
+      });
+    }
 
     res.json({
       message: "Book returned successfully",
-      borrow
+      overdueAmount
     });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-/* ---------------- ACTIVE BORROW ---------------- */
+
 export const getActiveBorrow = async (req, res) => {
   try {
-    const borrow = await Borrow.findOne({
-      userId: req.user.id,
+    const borrows = await Borrow.find({
+      user: req.user.id,
       status: "ACTIVE"
-    }).populate("bookId");
+    }).populate("book");
 
-    res.json(borrow);
+    res.json(borrows);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-/* ---------------- BORROW HISTORY ---------------- */
 export const getBorrowHistory = async (req, res) => {
   try {
     const history = await Borrow.find({
-      userId: req.user.id,
+      user: req.user.id,
       status: "RETURNED"
-    }).populate("bookId");
+    }).populate("book");
 
     res.json(history);
   } catch (error) {

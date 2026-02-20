@@ -39,14 +39,22 @@ export default function BookDetails() {
   }, [id]);
 
   const handleBorrow = async () => {
-    // ❌ limit reached
+    if (book.availableCopies <= 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Out of Stock",
+        text: "This book is currently unavailable.",
+      });
+      return;
+    }
+
     if (activeCount >= 2) {
       Swal.fire({
         icon: "warning",
         title: "Borrow Limit Reached 📚",
         text: "You already have 2 active borrowed books.",
-        confirmButtonText: "Go to My Borrows",
-      }).then(() => navigate("/borrow"));
+        confirmButtonText: "Go to My Dashboard",
+      }).then(() => navigate("/dashboard"));
       return;
     }
 
@@ -81,8 +89,19 @@ export default function BookDetails() {
     }
   };
 
-  if (loading) return <p className="text-center mt-20">Loading...</p>;
-  if (error) return <p className="text-center mt-20 text-red-500">{error}</p>;
+  if (loading)
+    return (
+      <div className="h-screen flex items-center justify-center">
+        Loading book details...
+      </div>
+    );
+
+  if (error)
+    return (
+      <p className="text-center mt-20 text-red-500">
+        {error}
+      </p>
+    );
 
   return (
     <>
@@ -107,7 +126,9 @@ export default function BookDetails() {
             {book.title}
           </h1>
 
-          <p className="text-gray-600 mt-1">by {book.author}</p>
+          <p className="text-gray-600 mt-1">
+            by {book.author}
+          </p>
 
           <p className="mt-4 text-gray-700">
             {book.description || "No description available."}
@@ -120,25 +141,31 @@ export default function BookDetails() {
 
             <span
               className={`px-3 py-1 rounded-full text-sm ${
-                book.isAvailable
+                book.availableCopies > 0
                   ? "bg-green-100 text-green-700"
                   : "bg-red-100 text-red-700"
               }`}
             >
-              {book.isAvailable ? "Available" : "Unavailable"}
+              {book.availableCopies > 0
+                ? `Available (${book.availableCopies})`
+                : "Out of Stock"}
             </span>
           </div>
 
           <button
             onClick={handleBorrow}
-            disabled={!book.isAvailable || borrowLoading}
+            disabled={
+              book.availableCopies === 0 || borrowLoading
+            }
             className={`mt-6 w-full py-3 rounded-md font-medium transition ${
-              book.isAvailable
+              book.availableCopies > 0
                 ? "bg-indigo-600 text-white hover:bg-indigo-700"
                 : "bg-gray-300 cursor-not-allowed"
             }`}
           >
-            Borrow Book
+            {borrowLoading
+              ? "Processing..."
+              : "Borrow Book"}
           </button>
         </div>
       </section>

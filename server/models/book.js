@@ -4,27 +4,36 @@ const bookSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true
+      required: true,
+      index: true
     },
     author: {
       type: String,
       required: true
     },
     image: {
-      type: String, 
-      required: false,
+      type: String
     },
     pricePerDay: {
       type: Number,
       required: true
     },
-    isAvailable: {
-      type: Boolean,
-      default: true
+    totalCopies: {
+      type: Number,
+      required: true,
+      min: 1
+    },
+    availableCopies: {
+      type: Number,
+      required: true,
+      min: 0
     }
   },
   { timestamps: true }
 );
+
+// text search support
+bookSchema.index({ title: "text", author: "text" });
 
 const Book = mongoose.model("Book", bookSchema);
 export default Book;

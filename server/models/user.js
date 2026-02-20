@@ -17,15 +17,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    hasActiveBorrow: {
-      type: Boolean,
-      default: false
+    role: {
+      type: String,
+      enum: ["admin", "librarian", "user"],
+      default: "user"
     },
     balance: {
-  type: Number,
-  default: 0
-}
-
+      type: Number,
+      default: 0
+    }
   },
   { timestamps: true }
 );

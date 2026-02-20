@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./conifg/db.js";
 import seedBooks from "./utils/seedBook.js";
+import createAdminIfNotExists from "./utils/admin.js";
 import path from "path";
 
 
@@ -44,7 +45,10 @@ const PORT = process.env.PORT || 5000;
 
 connectDB()
   .then(async () => {
-    await seedBooks();
+
+    await createAdminIfNotExists();
+
+    // await seedBooks();
 
     app.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);

@@ -1,10 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
+import { useAuth } from "./AuthContext";
 
 const BorrowContext = createContext();
 
 export function BorrowProvider({ children }) {
+  const { user } = useAuth();   // 🔥 important
+
   const [activeBorrow, setActiveBorrow] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -59,10 +62,13 @@ export function BorrowProvider({ children }) {
     }
   };
 
+  // 🔥 IMPORTANT FIX
   useEffect(() => {
+    if (!user) return;   // 🚀 only run when logged in
+
     fetchActiveBorrow();
     fetchBorrowHistory();
-  }, []);
+  }, [user]);
 
   return (
     <BorrowContext.Provider

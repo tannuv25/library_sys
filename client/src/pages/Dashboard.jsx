@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import api from "../api/axios";
 
 export default function Dashboard() {
-  const navigate = useNavigate(); // ✅ navigation hook
+  const navigate = useNavigate(); 
 
   const [loading, setLoading] = useState(true);
   const [activeBorrow, setActiveBorrow] = useState(null);
@@ -14,7 +14,7 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchDashboard() {
       try {
-        const res = await api.get("/api/dashboard/summary");
+        const res = await api.get("/api/dashboard/user");
 
         const { activeBorrow, stats } = res.data;
 

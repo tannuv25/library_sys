@@ -16,8 +16,8 @@ export default function Navbar() {
   };
 
   if (loading) {
-  return <div className="h-16 bg-white border-b"></div>;
-}
+    return <div className="h-16 bg-white border-b"></div>;
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
@@ -38,22 +38,37 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
             <Link to="/" className="hover:text-indigo-600">Home</Link>
             <Link to="/books" className="hover:text-indigo-600">Books</Link>
-           
 
-
-            {user && (
+            {/* USER MENU */}
+            {user?.role === "user" && (
               <>
-              <Link to="/dashboard" className="hover:text-indigo-600">
-                Dashboard
-              </Link>
-               <Link to="/borrow" className="hover:text-indigo-600">Borrow</Link>
-            <Link to="/borrow-history" className="hover:text-indigo-600">History</Link>
-            </>
+                <Link to="/dashboard" className="hover:text-indigo-600">
+                  My Dashboard
+                </Link>
+                <Link to="/borrow" className="hover:text-indigo-600">
+                  Borrow
+                </Link>
+                <Link to="/borrow-history" className="hover:text-indigo-600">
+                  History
+                </Link>
+              </>
+            )}
+
+            {/* ADMIN MENU */}
+            {user?.role === "admin" && (
+              <>
+                <Link to="/admin-dashboard" className="hover:text-indigo-600">
+                  Admin Dashboard
+                </Link>
+                <Link to="/admin-books" className="hover:text-indigo-600">
+                  Manage Books
+                </Link>
+              </>
             )}
 
             <span className="h-5 w-px bg-gray-300"></span>
 
-            {/* 🔐 AUTH SECTION */}
+            {/* AUTH SECTION */}
             {!user ? (
               <>
                 <Link to="/login" className="hover:text-indigo-600">
@@ -71,7 +86,7 @@ export default function Navbar() {
                 {/* PROFILE ICON */}
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold pointer-cursor"
+                  className="h-9 w-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold"
                 >
                   {user.name?.charAt(0).toUpperCase()}
                 </button>
@@ -81,7 +96,11 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-44 bg-white border rounded-md shadow-lg overflow-hidden">
                     <div className="px-4 py-2 text-sm text-gray-500">
                       {user.email}
+                      <div className="text-xs text-indigo-500 capitalize">
+                        {user.role}
+                      </div>
                     </div>
+
                     <Link
                       to="/profile"
                       onClick={() => setProfileOpen(false)}
@@ -89,6 +108,7 @@ export default function Navbar() {
                     >
                       Profile
                     </Link>
+
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
@@ -128,12 +148,21 @@ export default function Navbar() {
             <MobileLink to="/" label="Home" onClick={() => setOpen(false)} />
             <MobileLink to="/books" label="Books" onClick={() => setOpen(false)} />
 
-            {user && (
-              <MobileLink
-                to="/dashboard"
-                label="Dashboard"
-                onClick={() => setOpen(false)}
-              />
+            {/* USER MOBILE */}
+            {user?.role === "user" && (
+              <>
+                <MobileLink to="/dashboard" label="My Dashboard" onClick={() => setOpen(false)} />
+                <MobileLink to="/borrow" label="Borrow" onClick={() => setOpen(false)} />
+                <MobileLink to="/borrow-history" label="History" onClick={() => setOpen(false)} />
+              </>
+            )}
+
+            {/* ADMIN MOBILE */}
+            {user?.role === "admin" && (
+              <>
+                <MobileLink to="/admin-dashboard" label="Admin Dashboard" onClick={() => setOpen(false)} />
+                <MobileLink to="/admin-books" label="Manage Books" onClick={() => setOpen(false)} />
+              </>
             )}
 
             {!user ? (

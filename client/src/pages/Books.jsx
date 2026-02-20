@@ -10,19 +10,22 @@ export default function Books() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const res = await api.get("/api/books");
-        setBooks(res.data);
-      } catch (err) {
-        setError("Failed to load books");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchBooks = async () => {
+    try {
+      const res = await api.get("/api/books");
+      console.log("Books API response:", res.data); // 👈 check once
+      setBooks(res.data.books);  // ✅ FIXED
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load books");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchBooks();
-  }, []);
+  fetchBooks();
+}, []);
+
 
   return (
     <>

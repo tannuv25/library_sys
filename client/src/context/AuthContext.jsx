@@ -4,17 +4,24 @@ import api from "../api/axios";
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Load profile on refresh
+  // 🔹 Refresh profile from server
   const fetchProfile = async () => {
     try {
       const res = await api.get("/api/auth/profile");
-      setUser(res.data);
+      setUser(res.data.user);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
     } catch (err) {
       if (err.response?.status === 401) {
         localStorage.removeItem("token");
+        localStorage.removeItem("user");
         setUser(null);
       }
     } finally {
@@ -36,7 +43,10 @@ export function AuthProvider({ children }) {
   // LOGIN
   const login = async (email, password) => {
     const res = await api.post("/api/auth/login", { email, password });
+
     localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
     setUser(res.data.user);
   };
 
@@ -47,13 +57,17 @@ export function AuthProvider({ children }) {
       email,
       password,
     });
+
     localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
     setUser(res.data.user);
   };
 
   // LOGOUT
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
   };
 
@@ -65,7 +79,7 @@ export function AuthProvider({ children }) {
         login,
         signup,
         logout,
-        refreshProfile: fetchProfile, // 🔥 exposed
+        refreshProfile: fetchProfile,
       }}
     >
       {children}
